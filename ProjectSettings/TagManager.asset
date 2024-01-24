@@ -9,6 +9,10 @@ TagManager:
   - StageArea
   - PoolArea
   - MiniGameArea
+  - Missile
+  - Green Wall
+  - Red Wall
+  - Blue Wall
   layers:
   - Default
   - TransparentFX

@@ -1,7 +1,10 @@
 using DG.Tweening;
 using Rich.Base.Runtime.Abstract.View;
+using Runtime.Data.UnityObject;
 using Runtime.Data.ValueObject;
 using Runtime.Key;
+using Runtime.Enums;
+using Runtime.Signals;
 using Sirenix.OdinInspector;
 using TMPro;
 using Unity.Mathematics;
@@ -19,6 +22,9 @@ namespace Runtime.Views.Player
         public UnityAction onReset = delegate { };
         public UnityAction<Transform, Transform> onStageAreaEntered = delegate { };
         public UnityAction onFinishAreaEntered = delegate { };
+        public UnityAction onRedWallPassed = delegate { };
+        public UnityAction onBlueWallPassed = delegate { };
+        public UnityAction onGreenWallPassed = delegate { };
 
         #endregion
 
@@ -26,6 +32,7 @@ namespace Runtime.Views.Player
 
         [SerializeField] private new Rigidbody rigidbody;
         [SerializeField] private new Renderer renderer;
+        [SerializeField] private SkinnedMeshRenderer skinnedMeshRenderer;
         [SerializeField] private TextMeshPro scaleText;
         [SerializeField] private ParticleSystem confettiParticle;
 
@@ -38,6 +45,10 @@ namespace Runtime.Views.Player
 
         private float2 _clampValues;
         [ShowInInspector] private PlayerData _playerData;
+        [ShowInInspector] private CollectableColorTypes playerColorType;
+        [ShowInInspector] private CollectableColorData _collectableColorData;
+        [ShowInInspector] private CollectableData _dataCollectable;
+        private readonly string _collectableDataPath = "Data/CD_Collectable";
 
 
         private readonly string _stageArea = "StageArea";
@@ -46,14 +57,24 @@ namespace Runtime.Views.Player
 
         #endregion
 
+        #region Color Changer Gates Tags
+
+        private readonly string _redWall = "Red Wall";
+        private readonly string _blueWall = "Blue Wall";
+        private readonly string _greenWall = "Green Wall";
+
+        #endregion
         #endregion
 
-
+        private CollectableData GetCollectableData() => Resources.Load<CD_Collectable>(_collectableDataPath).Data;
         public void SetPlayerData(PlayerData playerData)
         {
             _playerData = playerData;
         }
-
+        internal void SetColorData(CollectableColorData colorData)
+        {
+            _collectableColorData = colorData;
+        }
         public void OnInputDragged(HorizontalInputParams horizontalInputParams)
         {
             _xValue = horizontalInputParams.HorizontalValue;
@@ -136,14 +157,58 @@ namespace Runtime.Views.Player
                 onFinishAreaEntered?.Invoke();
                 return;
             }
+            
+            if (other.CompareTag(_blueWall))
+            {
+                //playerManager.UpgradePlayerVisual(CollectableColorTypes.Blue);
+                onBlueWallPassed?.Invoke();
+            }
 
+            if (other.CompareTag(_greenWall))
+            {
+                //playerManager.UpgradePlayerVisual(CollectableColorTypes.Green);
+                onGreenWallPassed?.Invoke();
+            }
+
+            if (other.CompareTag(_redWall))
+            {
+                //UpgradePlayerVisual(CollectableColorTypes.Red);
+                onRedWallPassed?.Invoke();
+            }
+            
             if (other.CompareTag(_miniGame))
             {
                 //Write the MiniGame Mechanics
             }
         }
+        private void Awake()
+        {
+            _dataCollectable = GetCollectableData();
+            SendColorDataToController();
+        }
+        internal void UpgradePlayerVisual(CollectableColorTypes typeValue)
+        {
+            playerColorType = typeValue;
 
-
+            //PlayerSignals.Instance.onPlayerColorType?.Invoke(playerColorType);
+            
+            UpgradePlayerVisualColor((int)typeValue);
+        }
+        internal void UpgradePlayerVisualColor(int value)
+        {
+            skinnedMeshRenderer.material = _collectableColorData.MaterialsList[value];
+        }
+       
+        private void SendColorDataToController()
+        {
+            //meshController.SetMeshData(_data.MeshData);
+            SetColorData(_dataCollectable.ColorData);
+        }
+        
+       
+        
+        
+        
         internal void ScaleUpPlayer()
         {
             renderer.gameObject.transform.DOScaleX(_playerData.MeshData.ScaleCounter, 1).SetEase(Ease.Flash);

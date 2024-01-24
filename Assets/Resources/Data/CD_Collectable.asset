@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576815cc595f4be5b36dd763cc361154, type: 3}
+  m_Name: CD_Collectable
+  m_EditorClassIdentifier: 
+  Data:
+    ColorData:
+      MaterialsList:
+      - {fileID: 2100000, guid: 0b3530a8331ff6a45b9d73c0aecae733, type: 2}
+      - {fileID: 2100000, guid: 1b65deca76e737749aa4a74804174339, type: 2}
+      - {fileID: 2100000, guid: 5d364d0f166117e45a84cf1bd2ebd02f, type: 2}

@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Rich.Base.Runtime.Concrete.Injectable.Mediator;
+using Runtime.Enums;
 using Runtime.Model.Player;
 using Runtime.Signals;
 using Runtime.Views.Player;
@@ -30,6 +31,9 @@ namespace Runtime.Mediators.Player
             View.onReset += OnReset;
             View.onStageAreaEntered += OnStageAreaEntered;
             View.onFinishAreaEntered += OnFinishAreaEntered;
+            View.onBlueWallPassed += OnBlueWallPassed;
+            View.onRedWallPassed += OnRedWallPassed;
+            View.onGreenWallPassed += OnGreenWallPassed;
         }
 
 
@@ -69,7 +73,19 @@ namespace Runtime.Mediators.Player
             View.PlayConfettiParticle();
             View.ScaleUpPlayer();
         }
-
+        private void OnBlueWallPassed()
+        {
+            View.UpgradePlayerVisual(CollectableColorTypes.Blue);
+        }
+        private void OnRedWallPassed()
+        {
+            View.UpgradePlayerVisual(CollectableColorTypes.Red);
+        }
+        private void OnGreenWallPassed()
+        {
+            View.UpgradePlayerVisual(CollectableColorTypes.Green);
+        }
+        
         private void OnFinishAreaEntered()
         {
             CoreGameSignals.onLevelSuccessful?.Dispatch();
@@ -92,6 +108,9 @@ namespace Runtime.Mediators.Player
             View.onReset -= OnReset;
             View.onStageAreaEntered -= OnStageAreaEntered;
             View.onFinishAreaEntered -= OnFinishAreaEntered;
+            View.onBlueWallPassed -= OnBlueWallPassed;
+            View.onRedWallPassed -= OnRedWallPassed;
+            View.onGreenWallPassed -= OnGreenWallPassed;
         }
 
         public override void OnEnabled()
