@@ -17,6 +17,7 @@ namespace Runtime.Mediators.Player
         [Inject] public PlayerSignals PlayerSignals { get; set; }
         [Inject] public CoreGameSignals CoreGameSignals { get; set; }
 
+        [Inject] public StackSignals StackSignals { get; set; }
         [Inject] public UISignals UISignals { get; set; }
 
         public override void OnRegister()
@@ -34,12 +35,20 @@ namespace Runtime.Mediators.Player
             View.onBlueWallPassed += OnBlueWallPassed;
             View.onRedWallPassed += OnRedWallPassed;
             View.onGreenWallPassed += OnGreenWallPassed;
+            View.onSetPosStack += SetStackPos;
+            View.onStackCollectable += OnSendCollactableObject;
         }
 
-
+        private void OnSendCollactableObject(GameObject collectableObject)
+        {
+            StackSignals.onCollectableStack?.Dispatch(collectableObject);
+        }
+       
+       
         private void OnPlay()
         {
             View.IsReadyToPlay(true);
+            
         }
 
         private void OnStageAreaEntered(Transform view, Transform other)
@@ -90,7 +99,10 @@ namespace Runtime.Mediators.Player
         {
             CoreGameSignals.onLevelSuccessful?.Dispatch();
         }
-
+        private void SetStackPos(Vector2 position)
+        {
+            StackSignals.onStackPlayerFollow?.Dispatch(position);
+        }
         private void OnReset()
         {
             Model.StageValue = 0;
@@ -111,6 +123,8 @@ namespace Runtime.Mediators.Player
             View.onBlueWallPassed -= OnBlueWallPassed;
             View.onRedWallPassed -= OnRedWallPassed;
             View.onGreenWallPassed -= OnGreenWallPassed;
+            View.onSetPosStack -= SetStackPos;
+            View.onStackCollectable-= OnSendCollactableObject;
         }
 
         public override void OnEnabled()

@@ -9,6 +9,7 @@ namespace Runtime.Model.Player
 
         private const string PlayerDataPath = "Data/CD_Player";
         
+        
         public byte StageValue { get; set; }
 
         [PostConstruct]

@@ -25,7 +25,11 @@ namespace Runtime.Views.Player
         public UnityAction onRedWallPassed = delegate { };
         public UnityAction onBlueWallPassed = delegate { };
         public UnityAction onGreenWallPassed = delegate { };
-
+        public UnityAction<GameObject> onStackCollectable = delegate { };
+        
+        public UnityAction<Vector2> onSetPosStack = delegate { };
+        public UnityAction<Vector2> onStackPlayerFollow = delegate { };
+        
         #endregion
 
         #region Serialized Variables
@@ -54,7 +58,7 @@ namespace Runtime.Views.Player
         private readonly string _stageArea = "StageArea";
         private readonly string _finish = "FinishArea";
         private readonly string _miniGame = "MiniGameArea";
-
+        private readonly string _collectable = "Collectable";
         #endregion
 
         #region Color Changer Gates Tags
@@ -98,7 +102,6 @@ namespace Runtime.Views.Player
                 StopPlayer();
                 return;
             }
-
             if (_isReadyToMove)
             {
                 MovePlayer();
@@ -107,6 +110,7 @@ namespace Runtime.Views.Player
             {
                 StopPlayerHorizontally();
             }
+            SetStackPos();
         }
 
         private void StopPlayer()
@@ -141,6 +145,7 @@ namespace Runtime.Views.Player
         public void IsReadyToMove(bool condition)
         {
             _isReadyToMove = condition;
+            
         }
 
         private void OnTriggerEnter(Collider other)
@@ -157,22 +162,23 @@ namespace Runtime.Views.Player
                 onFinishAreaEntered?.Invoke();
                 return;
             }
-            
+            if (other.gameObject.name == _collectable)
+            {
+                onStackCollectable?.Invoke(other.transform.gameObject);
+                
+            }
             if (other.CompareTag(_blueWall))
             {
-                //playerManager.UpgradePlayerVisual(CollectableColorTypes.Blue);
                 onBlueWallPassed?.Invoke();
             }
 
             if (other.CompareTag(_greenWall))
             {
-                //playerManager.UpgradePlayerVisual(CollectableColorTypes.Green);
                 onGreenWallPassed?.Invoke();
             }
 
             if (other.CompareTag(_redWall))
             {
-                //UpgradePlayerVisual(CollectableColorTypes.Red);
                 onRedWallPassed?.Invoke();
             }
             
@@ -181,33 +187,24 @@ namespace Runtime.Views.Player
                 //Write the MiniGame Mechanics
             }
         }
-        private void Awake()
+        internal void SetStackPos()
         {
-            _dataCollectable = GetCollectableData();
-            SendColorDataToController();
+            var position = transform.position;
+            Vector2 pos = new Vector2(position.x, position.z);
+            onSetPosStack?.Invoke(pos);
         }
         internal void UpgradePlayerVisual(CollectableColorTypes typeValue)
         {
             playerColorType = typeValue;
-
-            //PlayerSignals.Instance.onPlayerColorType?.Invoke(playerColorType);
-            
             UpgradePlayerVisualColor((int)typeValue);
         }
+        
         internal void UpgradePlayerVisualColor(int value)
         {
+            _dataCollectable = GetCollectableData();
+            SetColorData(_dataCollectable.ColorData);
             skinnedMeshRenderer.material = _collectableColorData.MaterialsList[value];
         }
-       
-        private void SendColorDataToController()
-        {
-            //meshController.SetMeshData(_data.MeshData);
-            SetColorData(_dataCollectable.ColorData);
-        }
-        
-       
-        
-        
         
         internal void ScaleUpPlayer()
         {
