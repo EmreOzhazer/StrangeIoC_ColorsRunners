@@ -16,7 +16,6 @@ namespace Runtime.Mediators.Player
         [Inject] public InputSignals InputSignals { get; set; }
         [Inject] public PlayerSignals PlayerSignals { get; set; }
         [Inject] public CoreGameSignals CoreGameSignals { get; set; }
-
         [Inject] public StackSignals StackSignals { get; set; }
         [Inject] public UISignals UISignals { get; set; }
 

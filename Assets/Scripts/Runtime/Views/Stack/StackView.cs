@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Rich.Base.Runtime.Abstract.View;
 using Runtime.Data.ValueObject;
+using Runtime.Mediators.Stack;
 using Runtime.Signals;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -12,11 +13,15 @@ namespace Runtime.Views.Stack
     {
 
         #region Private Variables
-
+        public UnityAction<GameObject> onInteractionObstacle =  delegate { };
         internal StackData _data ;
         
         internal List<GameObject> _collectableStack = new List<GameObject>();
-      
+        private Transform _levelHolder;
+        [ShowInInspector] private int _currentStickManAmount;
+        
+        
+        
         #endregion
 
         public void SetStackData(StackData stackData)
@@ -77,6 +82,46 @@ namespace Runtime.Views.Stack
                 //_collectableManager.CollectableAnimRun();
 
             }
+        }
+        
+        
+        internal void OnInteractionWithObstacle()
+        {
+            
+            
+            if (_collectableStack.Count > 0)
+            {
+                RemoveLastItemFromStack();
+                StackJumper(_collectableStack.Count - 1,
+                    _collectableStack.Count);
+
+                _currentStickManAmount = _collectableStack.Count;
+            }
+        }
+        public void StackJumper(int last, int index)
+        {
+            for (int i = last; i > index; i--)
+            {
+                _collectableStack[i].transform.GetChild(1).tag = "Collectable";
+                _collectableStack[i].transform.SetParent(_levelHolder.transform.GetChild(0));
+                _collectableStack.RemoveAt(i);
+                _collectableStack.TrimExcess();
+            }
+        }
+        
+        private void RemoveLastItemFromStack()
+        {
+            int lastIndex = _collectableStack.Count - 1;
+            GameObject lastItem = _collectableStack[lastIndex];
+            _collectableStack.RemoveAt(lastIndex);
+            _collectableStack.TrimExcess();
+            MoveLastItemToLevelHolder(lastItem);
+        }
+
+        private void MoveLastItemToLevelHolder(GameObject lastItem)
+        {
+            lastItem.transform.SetParent(_levelHolder.transform.GetChild(0));
+            lastItem.SetActive(false);
         }
     }
 }

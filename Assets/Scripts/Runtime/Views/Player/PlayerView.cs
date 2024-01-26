@@ -5,6 +5,7 @@ using Runtime.Data.ValueObject;
 using Runtime.Key;
 using Runtime.Enums;
 using Runtime.Signals;
+using Runtime.Views.Stack;
 using Sirenix.OdinInspector;
 using TMPro;
 using Unity.Mathematics;
@@ -26,6 +27,7 @@ namespace Runtime.Views.Player
         public UnityAction onBlueWallPassed = delegate { };
         public UnityAction onGreenWallPassed = delegate { };
         public UnityAction<GameObject> onStackCollectable = delegate { };
+        public UnityAction<GameObject> onInteractionObstacle =  delegate { };
         
         public UnityAction<Vector2> onSetPosStack = delegate { };
         public UnityAction<Vector2> onStackPlayerFollow = delegate { };
@@ -33,7 +35,7 @@ namespace Runtime.Views.Player
         #endregion
 
         #region Serialized Variables
-
+        [Inject] public StackView StackView { get; set; }
         [SerializeField] private new Rigidbody rigidbody;
         [SerializeField] private new Renderer renderer;
         [SerializeField] private SkinnedMeshRenderer skinnedMeshRenderer;
@@ -59,6 +61,7 @@ namespace Runtime.Views.Player
         private readonly string _finish = "FinishArea";
         private readonly string _miniGame = "MiniGameArea";
         private readonly string _collectable = "Collectable";
+        private readonly string _obstacle = "Obstacle";
         #endregion
 
         #region Color Changer Gates Tags
@@ -157,6 +160,11 @@ namespace Runtime.Views.Player
                 IsReadyToPlay(false);
             }
 
+            if (other.CompareTag(_obstacle))
+            {
+                StackView.onInteractionObstacle?.Invoke(transform.parent.gameObject);
+            }
+            
             if (other.CompareTag(_finish))
             {
                 onFinishAreaEntered?.Invoke();
